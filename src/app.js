@@ -38,20 +38,16 @@ App = {
   initLoadJson: function() {
     setupDropFile(function(json, password) {
         if (ethers.utils.getJsonWalletAddress(json)) {
-            showLoading('Decrypting Wallet...');
+            showLoading('解密账号...');
             App.cancelScrypt = false;
 
             ethers.Wallet.fromEncryptedJson(json, password, App.updateLoading).then(function(wallet) {
                 App.setupWallet(wallet);
 
             }, function(error) {
-                if (error.message === 'invalid password') {
-                    alert('Wrong Password');
-                } else {
-                    console.log(error);
-                    alert('Error Decrypting Wallet');
-                }
-                showSelect();
+                alert('解密账号发生错误...');
+                console.log(error);
+                showAccout();
             });
         } else {
             alert('Unknown JSON wallet format');
@@ -111,14 +107,14 @@ App = {
           App.addActivity('< Balance: ' + balance.toString(10));
           inputBalance.val(ethers.utils.formatEther(balance, { commify: true }));
       }, function(error) {
-          App.showError(error);
+          showError(error);
       });
 
       App.activeWallet.getTransactionCount('pending').then(function(transactionCount) {
           App.addActivity('< TransactionCount: ' + transactionCount);
           inputTransactionCount.val(transactionCount);
       }, function(error) {
-          App.showError(error);
+          showError(error);
       });
     });
 

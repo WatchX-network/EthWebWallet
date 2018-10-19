@@ -2,18 +2,18 @@ function showError(error) {
     alert('Error \u2014 ' + error.message);
 }
 
-function showSelect () {
-    $('#screen-select').show();
+function showAccout () {
+    $('#screen-account').show();
     $('#screen-loading').hide();
     $('#screen-wallet').hide();
 }
 
  function showLoading(title) {
-    $('#screen-select').hide();
+    $('#screen-account').hide();
     $('#screen-loading').show();
     $('#screen-wallet').hide();
 
-    $('#loading-header').textContent = title;
+    $('#loading-header').text(title) ;
 
     $("#loading-cancel").click(function() {
           App.cancelScrypt = true;
@@ -22,7 +22,7 @@ function showSelect () {
 }
 
 function showWallet() {
-  $('#screen-select').hide();
+  $('#screen-account').hide();
   $('#screen-loading').hide();
   $('#screen-wallet').show();
 }
