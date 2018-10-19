@@ -3,17 +3,17 @@ function showError(error) {
 }
 
 function showSelect () {
-    document.getElementById('screen-select').style.display = 'block';
-    document.getElementById('screen-loading').style.display = 'none';
-    document.getElementById('screen-wallet').style.display = 'none';
+    $('#screen-select').show();
+    $('#screen-loading').hide();
+    $('#screen-wallet').hide();
 }
 
  function showLoading(title) {
-    document.getElementById('screen-select').style.display = 'none';
-    document.getElementById('screen-loading').style.display = 'block';
-    document.getElementById('screen-wallet').style.display = 'none';
+    $('#screen-select').hide();
+    $('#screen-loading').show();
+    $('#screen-wallet').hide();
 
-    document.getElementById('loading-header').textContent = title;
+    $('#loading-header').textContent = title;
 
     $("#loading-cancel").click(function() {
           App.cancelScrypt = true;
@@ -22,9 +22,9 @@ function showSelect () {
 }
 
 function showWallet() {
-  document.getElementById('screen-select').style.display = 'none';
-  document.getElementById('screen-loading').style.display = 'none';
-  document.getElementById('screen-wallet').style.display = 'block';
+  $('#screen-select').hide();
+  $('#screen-loading').hide();
+  $('#screen-wallet').show();
 }
 
 function setupDropFile(parseJsonFun) {

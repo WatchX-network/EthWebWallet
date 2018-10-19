@@ -11,10 +11,10 @@ App = {
     App.activeWallet = wallet.connect(App.provider);
 
     var inputWalletAddress = $('#wallet-address');
-    inputWalletAddress.value = wallet.address;
-    inputWalletAddress.onclick = function() {
+    inputWalletAddress.val(wallet.address);
+    inputWalletAddress.click(function() {
         this.select();
-    };
+    });
 
     App.setupSendEther();
     App.refreshUI();
@@ -62,22 +62,21 @@ App = {
   initLoadKey: function() {
     var inputPrivatekey = $('#select-privatekey');
     var submit = $('#select-submit-privatekey');
-
-    function check() {
-        if (inputPrivatekey.value.match(/^(0x)?[0-9A-fa-f]{64}$/)) {
-            submit.classList.remove('disable');
-        } else {
-            submit.classList.add('disable');
-        }
-    }
-    inputPrivatekey.oninput = check;
-
-    submit.onclick = function() {
-        if (submit.classList.contains('disable')) { return; }
-        var privateKey = inputPrivatekey.value;
+    submit.click(function() {
+        if (submit.hasClass('disable')) { return; }
+        var privateKey = inputPrivatekey.val();
         if (privateKey.substring(0, 2) !== '0x') { privateKey = '0x' + privateKey; }
         App.setupWallet(new ethers.Wallet(privateKey));
-    }
+    });
+
+    inputPrivatekey.on("input", function() {
+        if (inputPrivatekey.val().match(/^(0x)?[0-9A-fa-f]{64}$/)) {
+            submit.removeClass('disable');
+        } else {
+            submit.addClass('disable');
+        }
+    });
+
   },
 
   initMnemonic: function() {
@@ -86,10 +85,10 @@ App = {
     var submit = $('#select-submit-mnemonic');
 
     function check() {
-        if (ethers.utils.HDNode.isValidMnemonic(inputPhrase.value)) {
-            submit.classList.remove('disable');
+        if (ethers.utils.HDNode.isValidMnemonic(inputPhrase.val())) {
+            submit.removeClass('disable');
         } else {
-            submit.classList.add('disable');
+            submit.addClass('disable');
         }
     }
     inputPhrase.oninput = check;
@@ -97,7 +96,7 @@ App = {
 
     submit.onclick = function() {
         if (submit.classList.contains('disable')) { return; }
-        App.setupWallet(ethers.Wallet.fromMnemonic(inputPhrase.value, inputPath.value));
+        App.setupWallet(ethers.Wallet.fromMnemonic(inputPhrase.val(), inputPath.val()));
     }
 
   },
@@ -110,14 +109,14 @@ App = {
       App.addActivity('> Refreshing details...');
       App.activeWallet.getBalance('pending').then(function(balance) {
           App.addActivity('< Balance: ' + balance.toString(10));
-          inputBalance.value = ethers.utils.formatEther(balance, { commify: true });
+          inputBalance.val(ethers.utils.formatEther(balance, { commify: true }));
       }, function(error) {
           App.showError(error);
       });
 
       App.activeWallet.getTransactionCount('pending').then(function(transactionCount) {
           App.addActivity('< TransactionCount: ' + transactionCount);
-          inputTransactionCount.value = transactionCount;
+          inputTransactionCount.val(transactionCount);
       }, function(error) {
           App.showError(error);
       });
@@ -145,7 +144,7 @@ App = {
   refreshToken: function() {
     var tokenBalance = $('#wallet-token-balance');
     App.contract.balanceOf(App.activeWallet.address).then(function(balance){
-        tokenBalance.value = balance;
+        tokenBalance.val(balance);
     });
   },
 
@@ -162,19 +161,19 @@ App = {
     // Validate the address and value (to enable the send button)
     function check() {
         try {
-            ethers.utils.getAddress(inputTargetAddress.value);
-            ethers.utils.parseEther(inputAmount.value);
+            ethers.utils.getAddress(inputTargetAddress.val());
+            ethers.utils.parseEther(inputAmount.val());
         } catch (error) {
-            submit.classList.add('disable');
+            submit.addClass('disable');
             return;
         }
-        submit.classList.remove('disable');
+        submit.removeClass('disable');
     }
-    inputTargetAddress.oninput = check;
-    inputAmount.oninput = check;
+    inputTargetAddress.on("input", check);
+    inputAmount.on("input", check);
 
     // Send ether
-    submit.onclick = function() {
+    submit.click(function() {
 
         // Matt (from Etherscan) is working on a gasPrice API call, which
         // should be done within a week or so.
@@ -182,8 +181,8 @@ App = {
         //var gasPrice = (activeWallet.provider.testnet ? 0x4a817c800: 0xba43b7400);
         //console.log('GasPrice: ' + gasPrice);
 
-        var targetAddress = ethers.utils.getAddress(inputTargetAddress.value);
-        var amountWei = ethers.utils.parseEther(inputAmount.value);
+        var targetAddress = ethers.utils.getAddress(inputTargetAddress.val());
+        var amountWei = ethers.utils.parseEther(inputAmount.val());
 
         App.activeWallet.sendTransaction({
             to: targetAddress,
@@ -196,16 +195,16 @@ App = {
             App.addActivity('< Transaction sent: ' + tx.hash.substring(0, 20) + '...');
             alert('Success!');
 
-            inputTargetAddress.value = '';
-            inputAmount.value = '';
-            submit.classList.add('disable');
+            inputTargetAddress.val('');
+            inputAmount.val('');
+            submit.addClass('disable');
 
             App.refreshUI();
         }, function(error) {
             console.log(error);
             showError(error);
         });
-    }
+    })
   },
 
   setupSendToken: function() {
@@ -216,22 +215,23 @@ App = {
     // Validate the address and value (to enable the send button)
     function check() {
         try {
-            ethers.utils.getAddress(inputTargetAddress.value);
+            ethers.utils.getAddress(inputTargetAddress.val());
         } catch (error) {
-            submit.classList.add('disable');
+            submit.addClass('disable');
             return;
         }
-        submit.classList.remove('disable');
+        submit.removeClass('disable');
     }
-    inputTargetAddress.oninput = check;
-    inputAmount.oninput = check;
+
+    inputTargetAddress.on("input", check);
+    inputAmount.on("input",check);
 
     // Send token
-    submit.onclick = function() {
-        var targetAddress = ethers.utils.getAddress(inputTargetAddress.value);
-        var amount = inputAmount.value;
+    submit.click(function() {
+        var targetAddress = ethers.utils.getAddress(inputTargetAddress.val());
+        var amount = inputAmount.val();
 
-        let contractWithSigner = App.contract.connect(activeWallet);
+        let contractWithSigner = App.contract.connect(App.activeWallet);
 
         contractWithSigner.transfer(targetAddress, amount, {
           gasLimit: 500000,
@@ -239,23 +239,19 @@ App = {
         }).then(function(tx) {
             console.log(tx);
 
-            // Since we only use standard networks, network will always be known
-            var tag = activeWallet.provider.network.name + '.';
-            if (tag === 'homestead.') { tag = ''; }
-            var url = 'https://' + tag + 'etherscan.io/tx/' + tx.hash;
             App.addActivity('< Token sent: ' + tx.hash.substring(0, 20) + '...');
             alert('Success!');
 
-            inputTargetAddress.value = '';
-            inputAmount.value = '';
-            submit.classList.add('disable');
+            inputTargetAddress.val('');
+            inputAmount.val('') ;
+            submit.addClass('disable');
 
             App.refreshToken();
         }, function(error) {
             console.log(error);
             App.showError(error);
         });
-    }
+    });
   }
 }
 
