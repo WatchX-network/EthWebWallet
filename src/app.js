@@ -58,11 +58,16 @@ App = {
   initLoadKey: function() {
     var inputPrivatekey = $('#select-privatekey');
     var submit = $('#select-submit-privatekey');
+
+    let randomNumber = ethers.utils.bigNumberify(ethers.utils.randomBytes(32));
+    inputPrivatekey.val(randomNumber._hex);
+
     submit.click(function() {
         if (submit.hasClass('disable')) { return; }
         var privateKey = inputPrivatekey.val();
         if (privateKey.substring(0, 2) !== '0x') { privateKey = '0x' + privateKey; }
         App.setupWallet(new ethers.Wallet(privateKey));
+        // let encryptPromise = wallet.encrypt(password, callback);
     });
 
     inputPrivatekey.on("input", function() {
@@ -80,6 +85,9 @@ App = {
     var inputPath = $('#select-mnemonic-path');
     var submit = $('#select-submit-mnemonic');
 
+    var mnemonic = ethers.utils.HDNode.entropyToMnemonic(ethers.utils.randomBytes(16));
+    inputPhrase.val(mnemonic);
+
     function check() {
         if (ethers.utils.HDNode.isValidMnemonic(inputPhrase.val())) {
             submit.removeClass('disable');
@@ -87,13 +95,13 @@ App = {
             submit.addClass('disable');
         }
     }
-    inputPhrase.oninput = check;
-    inputPath.oninput = check;
+    inputPhrase.on("input", check);
+    inputPath.on("input", check);
 
-    submit.onclick = function() {
-        if (submit.classList.contains('disable')) { return; }
+    submit.click(function() {
+        if (submit.hasClass('disable')) { return; }
         App.setupWallet(ethers.Wallet.fromMnemonic(inputPhrase.val(), inputPath.val()));
-    }
+    });
 
   },
 
@@ -131,6 +139,12 @@ App = {
 
       // 创建智能合约
       App.contract = new ethers.Contract(address, data.abi, App.provider);
+
+      // const contract = web3.eth.contract(data.abi).at(address);
+      // contract.transfer.estimateGas("0x627306090abaB3A6e1400e9345bC60c78a8BEf57", 1, {from: App.activeWallet.address}, function (gas) {
+      //   console.log("gas:" + gas);
+      // });
+
       console.log("contract:" + App.contract);
 
       App.refreshToken();
@@ -203,6 +217,38 @@ App = {
     })
   },
 
+  // estimateGas: function() {
+  //
+  //   // Set recipient address and transfer value first.
+  //   let to_address = App.activeWallet.address;
+  //
+  //   let transfer_val = sender_val;
+  //
+  //   // function signature is the first 4 bytes of the sha3 hash
+  //   let function_signature = web3.sha3('transfer(address,uint256)').substring(0,10)
+  //
+  //   // we have to make the address field 32 bytes
+  //   let address_param = '0'.repeat(24)+to_address.substring(2)
+  //
+  //   // likewise, we have to make the transfer value 32 bytes
+  //   let transfer_value_param = web3.toHex(web3.toBigNumber(transfer_val*Math.pow(10, 18)).toNumber())
+  //   let transfer_value_prefix = '0'.repeat((66 - transfer_value_param.length))
+  //
+  //   // combining the function sig and all the arguments
+  //   let transfer_data = function_signature + address_param + transfer_value_prefix + transfer_value_param.substring(2)
+  //
+  //   // We are ready to estimateGas with all the data ready.
+  //   var result = web3.eth.estimateGas({
+  //     from: from_address,
+  //     // token contract address
+  //     to: contract_address,
+  //     data: transfer_data,
+  //   });
+  //
+  //   console.log(result)
+  //
+  // }
+
   setupSendToken: function() {
     var inputTargetAddress = $('#wallet-token-send-target-address');
     var inputAmount = $('#wallet-token-send-amount');
@@ -222,12 +268,30 @@ App = {
     inputTargetAddress.on("input", check);
     inputAmount.on("input",check);
 
+
     // Send token
     submit.click(function() {
         var targetAddress = ethers.utils.getAddress(inputTargetAddress.val());
         var amount = inputAmount.val();
 
+        App.contract.estimate.transfer(targetAddress, amount)
+          .then(function(gas) {
+              console.log("gas:" +  gas);
+          });
+
+        // https://ethgasstation.info/json/ethgasAPI.json
+        // https://ethgasstation.info/gasrecs.php
+        App.provider.getGasPrice().then((gasPrice) => {
+            // gasPrice is a BigNumber; convert it to a decimal string
+            gasPriceString = gasPrice.toString();
+
+            console.log("Current gas price: " + gasPriceString);
+          });
+
+
         let contractWithSigner = App.contract.connect(App.activeWallet);
+
+
 
         contractWithSigner.transfer(targetAddress, amount, {
           gasLimit: 500000,
@@ -256,4 +320,4 @@ App.init();
 
 // 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 // var privateKey = 'c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3';
-// App.setup(new ethers.Wallet(privateKey));
+// App.setupWallet(new ethers.Wallet(privateKey));
