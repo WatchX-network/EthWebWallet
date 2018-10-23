@@ -4,17 +4,28 @@ npm init
 npm install lite-server
 
 
-## 启动geth
+## token 编写及部署
+
+安装openzeppelin-solidity
+npm install openzeppelin-solidity
+
+部署的时候进行解锁
+personal.unlockAccount(eth.accounts[0],"");
+
+
+truffle migrate
+
+
+## 启动
+
+因为provider 是使用的本地的geth节点，因此需要先启动geth：
 
 ```
 geth --datadir testNet --dev --rpc --rpccorsdomain "http://localhost:3000" console
 ```
 
+当然provider 也可以在app.js 中按自己的要求修改
 
-## token
+启动web程序：
 
-npm install openzeppelin-solidity
-
-
-
-personal.unlockAccount(eth.accounts[1],"TinyXiong");
+> npm run dev
