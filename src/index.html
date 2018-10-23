@@ -76,9 +76,7 @@
         </div>
         <div class="centerer hidden" id="screen-loading">
             <div class="centered">
-                <h1>加载钱包...</h1>
-                <hr />
-                <h2 id="loading-header"></h2>
+                <h1 id="loading-header"></h2>
                 <table>
                     <tr>
                         <th>进度:</th>
@@ -174,6 +172,21 @@
                     </tr>
                 </table>
 
+                <h3>KeyStore 导出:</h3>
+                <table>
+                    <tr>
+                        <th>密码:</th>
+                        <td><input type="text" placeholder="(password)" id="save-keystore-file-pwd" /></td>
+                    </tr>
+
+                    <tr>
+                        <td> </td>
+                        <td>
+                            <div id="save-keystore" class="submit">导出</div>
+                        </td>
+                    </tr>
+                </table>
+
                 <h3>交易信息：</h3>
                 <div id="wallet-activity" class="activity"></div>
 
@@ -188,6 +201,7 @@
         <script type="text/javascript" src="ethers-v4.min.js"></script>
         <script type="text/javascript" src="jquery.min.js"></script>
         <script type="text/javascript" src="page.js"></script>
+        <script type="text/javascript" src="FileSaver.js"></script>
         <script type="text/javascript" src="app.js"></script>
 
     </body>

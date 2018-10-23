@@ -12,9 +12,8 @@ App = {
 
     var inputWalletAddress = $('#wallet-address');
     inputWalletAddress.val(wallet.address);
-    inputWalletAddress.click(function() {
-        this.select();
-    });
+
+    $('#save-keystore').click(App.exportKeystore);
 
     App.setupSendEther();
     App.refreshUI();
@@ -43,10 +42,13 @@ App = {
 
             ethers.Wallet.fromEncryptedJson(json, password, App.updateLoading).then(function(wallet) {
                 App.setupWallet(wallet);
-
             }, function(error) {
-                alert('解密账号发生错误...');
-                console.log(error);
+                if (error.message === 'invalid password') {
+                    alert('Wrong Password');
+                } else {
+                  alert('解密账号发生错误...');
+                  console.log(error);
+                }
                 showAccout();
             });
         } else {
@@ -59,6 +61,7 @@ App = {
     var inputPrivatekey = $('#select-privatekey');
     var submit = $('#select-submit-privatekey');
 
+    // 生成一个默认的私钥
     let randomNumber = ethers.utils.bigNumberify(ethers.utils.randomBytes(32));
     inputPrivatekey.val(randomNumber._hex);
 
@@ -66,8 +69,10 @@ App = {
         if (submit.hasClass('disable')) { return; }
         var privateKey = inputPrivatekey.val();
         if (privateKey.substring(0, 2) !== '0x') { privateKey = '0x' + privateKey; }
+        // 创建对应的钱包
+
         App.setupWallet(new ethers.Wallet(privateKey));
-        // let encryptPromise = wallet.encrypt(password, callback);
+
     });
 
     inputPrivatekey.on("input", function() {
@@ -80,11 +85,27 @@ App = {
 
   },
 
+
+  exportKeystore() {
+    var pwd = $('#save-keystore-file-pwd');
+
+    showLoading('导出私钥...');
+    App.cancelScrypt = false;
+
+    App.activeWallet.encrypt(pwd.val(), App.updateLoading).then(function(json) {
+      showWallet();
+      var blob = new Blob([json], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, "keystore.json");
+
+    });
+  },
+
   initMnemonic: function() {
     var inputPhrase = $('#select-mnemonic-phrase');
     var inputPath = $('#select-mnemonic-path');
     var submit = $('#select-submit-mnemonic');
 
+// 生成助记词
     var mnemonic = ethers.utils.HDNode.entropyToMnemonic(ethers.utils.randomBytes(16));
     inputPhrase.val(mnemonic);
 
