@@ -86,7 +86,7 @@ App = {
   },
 
 
-  exportKeystore() {
+  exportKeystore: function() {
     var pwd = $('#save-keystore-file-pwd');
 
     showLoading('导出私钥...');
