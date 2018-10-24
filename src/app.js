@@ -8,6 +8,8 @@ App = {
     showWallet();
 
     App.provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+
+    // App.provider = ethers.getDefaultProvider('ropsten');
     App.activeWallet = wallet.connect(App.provider);
 
     var inputWalletAddress = $('#wallet-address');
@@ -132,6 +134,7 @@ App = {
 
     $("#wallet-submit-refresh").click(function() {
       App.addActivity('> Refreshing details...');
+      // 获取余额时， 包含当前正在打包的区块
       App.activeWallet.getBalance('pending').then(function(balance) {
           App.addActivity('< Balance: ' + balance.toString(10));
           inputBalance.val(ethers.utils.formatEther(balance, { commify: true }));
@@ -147,6 +150,7 @@ App = {
       });
     });
 
+// 模拟一次点击获取数据
     $("#wallet-submit-refresh").click();
 
   },
@@ -205,14 +209,9 @@ App = {
 
     // Send ether
     submit.click(function() {
-
-        // Matt (from Etherscan) is working on a gasPrice API call, which
-        // should be done within a week or so.
-        // @TODO
-        //var gasPrice = (activeWallet.provider.testnet ? 0x4a817c800: 0xba43b7400);
-        //console.log('GasPrice: ' + gasPrice);
-
+            // 得到一个checksum 地址
         var targetAddress = ethers.utils.getAddress(inputTargetAddress.val());
+        /// ether -> wei
         var amountWei = ethers.utils.parseEther(inputAmount.val());
 
         App.activeWallet.sendTransaction({
@@ -237,38 +236,6 @@ App = {
         });
     })
   },
-
-  // estimateGas: function() {
-  //
-  //   // Set recipient address and transfer value first.
-  //   let to_address = App.activeWallet.address;
-  //
-  //   let transfer_val = sender_val;
-  //
-  //   // function signature is the first 4 bytes of the sha3 hash
-  //   let function_signature = web3.sha3('transfer(address,uint256)').substring(0,10)
-  //
-  //   // we have to make the address field 32 bytes
-  //   let address_param = '0'.repeat(24)+to_address.substring(2)
-  //
-  //   // likewise, we have to make the transfer value 32 bytes
-  //   let transfer_value_param = web3.toHex(web3.toBigNumber(transfer_val*Math.pow(10, 18)).toNumber())
-  //   let transfer_value_prefix = '0'.repeat((66 - transfer_value_param.length))
-  //
-  //   // combining the function sig and all the arguments
-  //   let transfer_data = function_signature + address_param + transfer_value_prefix + transfer_value_param.substring(2)
-  //
-  //   // We are ready to estimateGas with all the data ready.
-  //   var result = web3.eth.estimateGas({
-  //     from: from_address,
-  //     // token contract address
-  //     to: contract_address,
-  //     data: transfer_data,
-  //   });
-  //
-  //   console.log(result)
-  //
-  // }
 
   setupSendToken: function() {
     var inputTargetAddress = $('#wallet-token-send-target-address');
@@ -309,10 +276,7 @@ App = {
             console.log("Current gas price: " + gasPriceString);
           });
 
-
         let contractWithSigner = App.contract.connect(App.activeWallet);
-
-
 
         contractWithSigner.transfer(targetAddress, amount, {
           gasLimit: 500000,

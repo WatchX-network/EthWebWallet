@@ -24,7 +24,7 @@ truffle migrate
 geth --datadir testNet --dev --rpc --rpccorsdomain "http://localhost:3000" console
 ```
 
-当然provider 也可以在app.js 中按自己的要求修改
+当然provider 也可以在app.js 中按自己的要求修改，参考文档 https://docs.ethers.io/ethers.js/html/api-providers.html
 
 启动web程序：
 
