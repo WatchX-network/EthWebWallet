@@ -178,6 +178,7 @@ App = {
 
   refreshToken: function() {
     var tokenBalance = $('#wallet-token-balance');
+         // 直接调用合约方法
     App.contract.balanceOf(App.activeWallet.address).then(function(balance){
         tokenBalance.val(balance);
     });
@@ -262,11 +263,6 @@ App = {
         var targetAddress = ethers.utils.getAddress(inputTargetAddress.val());
         var amount = inputAmount.val();
 
-        App.contract.estimate.transfer(targetAddress, amount)
-          .then(function(gas) {
-              console.log("gas:" +  gas);
-          });
-
         // https://ethgasstation.info/json/ethgasAPI.json
         // https://ethgasstation.info/gasrecs.php
         App.provider.getGasPrice().then((gasPrice) => {
@@ -276,10 +272,18 @@ App = {
             console.log("Current gas price: " + gasPriceString);
           });
 
-        let contractWithSigner = App.contract.connect(App.activeWallet);
+        App.contract.estimate.transfer(targetAddress, amount)
+          .then(function(gas) {
+              console.log("gas:" +  gas);
+          });
 
+
+      // 必须关联一个有过签名钱包对象
+        let contractWithSigner = App.contract.connect(App.activeWallet);
+        //  发起交易，前面2个参数是函数的参数，第3个是交易参数
         contractWithSigner.transfer(targetAddress, amount, {
           gasLimit: 500000,
+          // 偷懒，直接是用 2gwei
           gasPrice: ethers.utils.parseUnits("2", "gwei"),
         }).then(function(tx) {
             console.log(tx);
