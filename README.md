@@ -1,22 +1,46 @@
-## 安装
+# 以太坊钱包开发原理与网页钱包开发 课程代码
 
+课程链接:
+
+https://ke.qq.com/course/356068?tuin=bd898bbf
+
+## 安装
+### 方法１
+
+如果是clone 的代码直接使用：
+```
+> npm install
+```
+
+安装依赖．
+
+###　方法２：
+
+如果是自己从头开始建立工程，可以使用以下方法：
+
+```
 npm init
 npm install lite-server
+```
 
+安装openzeppelin-solidity:
 
-## token 编写及部署
+```
+> npm install openzeppelin-solidity
+```
 
-安装openzeppelin-solidity
-npm install openzeppelin-solidity
+## 部署
+
+我这边是使用Geth作为节点, 大家也可以使用Ganache, 大家要注意网络配置和账号再部署和页面中保持一致.
 
 部署的时候进行解锁
 personal.unlockAccount(eth.accounts[0],"");
 
+```
+> truffle migrate
+```
 
-truffle migrate
-
-
-## 启动
+## 启动Web服务
 
 因为provider 是使用的本地的geth节点，因此需要先启动geth：
 
@@ -28,4 +52,7 @@ geth --datadir testNet --dev --rpc --rpccorsdomain "http://localhost:3000" conso
 
 启动web程序：
 
+```
 > npm run dev
+```
+

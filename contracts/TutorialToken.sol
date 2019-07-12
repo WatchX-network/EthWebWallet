@@ -1,18 +1,14 @@
-pragma solidity ^0.4.24;
-
-import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+pragma solidity ^0.5.0;
 
 
-contract TutorialToken is StandardToken {
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
-  string public name = "TutorialToken";
-  string public symbol = "TT";
-  uint8 public decimals = 0;
+contract TutorialToken is ERC20, ERC20Detailed {
+
   uint public INITIAL_SUPPLY = 10000;
 
-  constructor() public {
-    totalSupply_ = INITIAL_SUPPLY;
-    balances[msg.sender] = INITIAL_SUPPLY;
+  constructor() public ERC20Detailed("TutorialToken", "TT", 0) {
+     _mint(msg.sender, INITIAL_SUPPLY);
   }
-
 }
